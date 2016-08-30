@@ -1,11 +1,16 @@
-require_relative '../config/environment'
-require 'test/unit'
+require_relative 'spec_helper.rb'
 
 class AnagramModelSpecs < Test::Unit::TestCase
 
+  def teardown
+    # delete everything
+    a = Anagram.all
+    a.destroy_all
+  end
+
   def test_anagram_has_a_key
     anagram = Anagram.create(key: "ader")
-    assert_equal(anagram.key, "ader")
+    assert_equal(anagram.key, "ader", "An Anagram has a key")
   end
 
   def test_anagram_has_an_array_of_words
@@ -25,5 +30,9 @@ class AnagramModelSpecs < Test::Unit::TestCase
     anagram = Anagram.new(key: "ader")
     anagram.save
     assert_equal(anagram.valid?, true)
+  end
+
+  def test_anagram_words_are_not_doubled
+    anagrams_array = ["read", "dear", "dare"]
   end
 end

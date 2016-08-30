@@ -1,9 +1,6 @@
 #!/usr/bin/env ruby
 
-require 'json'
-require_relative 'anagram_client'
-require 'test/unit'
-
+require_relative 'spec_helper.rb'
 # capture ARGV before TestUnit Autorunner clobbers it
 
 class TestCases < Test::Unit::TestCase
@@ -45,7 +42,6 @@ class TestCases < Test::Unit::TestCase
   end
 
   def test_fetching_anagrams_with_limit
-    pend # delete me
 
     # fetch anagrams with limit
     res = @client.get('/anagrams/read.json', 'limit=1')

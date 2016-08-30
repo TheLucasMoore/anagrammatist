@@ -1,0 +1,21 @@
+development:
+  adapter: postgresql
+  encoding: unicode
+  database: anagrammatist_development
+  host: localhost
+  pool: 50
+
+test:
+  adapter: postgresql
+  encoding: unicode
+  database: anagrammatist_test
+  host: localhost
+  pool: 5
+
+
+production:
+  adapter: postgresql
+  encoding: unicode
+  database: anagrammatist_production
+  host: localhost
+  pool: 5
