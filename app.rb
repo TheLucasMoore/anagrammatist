@@ -20,36 +20,61 @@ class App < Sinatra::Base
   # return anagrams for any word
   get '/anagrams/:word.:format?' do
     word = params[:word]
+    if params[:limit]
+      limit = params[:limit].to_i
+    end
     key = find_key(word)
     anagram = Anagram.find_by(key: key)
-    limit = params[:limit] || anagram.words.size
-    # set the limit to the parms or to the number of words
-    anagram ? anagrams = anagram.words.first(limit.to_i) - %w(word) : nil
-    # don't return the word as its own anagram by subtracting arrays. Handle unfound Anagrams too.
-    {anagrams: anagrams}.to_json
+    if anagram
+      # set the limit to the params or to the number of words
+      limit ||= anagram.words.size
+      # don't return the word as its own anagram by subtracting arrays.
+      word_as_array = word.split
+      anagrams = anagram.words - word_as_array
+      {anagrams: anagrams.first(limit)}.to_json
+    else
+      # if there's no anagram object, return a blank array
+      {anagrams: []}.to_json
+    end
   end
 
   # adding words to the datastore
   post '/words:format?' do
-
+    # from SINATRA docs. In case it's being pulled elsewhere too.
     request.body.rewind
-    data = JSON.parse(request.body.read)
+    data = JSON.parse request.body.read
 
+    if data['words'].empty?
+      status 418
+      # a little joke here.
+    end
     data['words'].each do |word|
       key = find_key(word)
       anagram = Anagram.find_or_create_by(key: key)
-      anagram.words.include?("word") ? anagram : anagram.words.push(word)
-      # return anagram.words - %w(word)
-      status 201
+      if anagram.words.exclude?(word)
+        anagram.words.push(word)
+      end
+      anagram.save
     end
+    status 201
+  end
+
+  delete '/words.:format?' do
+    anagrams = Anagram.all
+    anagrams.destroy_all
+    status 204
   end
 
   delete '/words/:word.:format?' do
     # delete a single word from data store
-  end
-
-  delete '/words.:format?' do
-    # clears the datastore
+    word = params[:word]
+    key = find_key(word)
+    anagram = Anagram.find_by(key: key)
+    word_as_array = word.split
+    # again, I use the magic of array subtraction
+    anagram.words = anagram.words - word_as_array
+    anagram.save #update the words array in the database
+    {anagrams: anagram.words}.to_json
   end
 
   # Optional Stuff

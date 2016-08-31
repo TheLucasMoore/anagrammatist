@@ -1,6 +1,6 @@
-set :environment, :test
+ENV['RACK_ENV'] = "test"
 
 require 'json'
-require_relative 'anagram_client'
 require 'test/unit'
+require_relative 'anagram_client'
 require_relative '../config/environment'

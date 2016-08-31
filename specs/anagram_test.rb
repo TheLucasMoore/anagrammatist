@@ -23,6 +23,12 @@ class TestCases < Test::Unit::TestCase
     res = @client.post('/words.json', nil, {"words" => ["read", "dear", "dare"] })
 
     assert_equal('201', res.code, "Unexpected response code")
+
+    # I modified this test to double check the POST persistence before deletion in teardown
+    saved = @client.get('/anagrams/read.json')
+    body = JSON.parse(saved.body)
+    expected_anagrams = %w(dare dear)
+    assert_equal(expected_anagrams, body['anagrams'].sort)
   end
 
   def test_fetching_anagrams
@@ -54,8 +60,6 @@ class TestCases < Test::Unit::TestCase
   end
 
   def test_fetch_for_word_with_no_anagrams
-    pend # delete me
-
     # fetch anagrams with limit
     res = @client.get('/anagrams/zyxwv.json')
 
@@ -67,8 +71,6 @@ class TestCases < Test::Unit::TestCase
   end
 
   def test_deleting_all_words
-    pend # delete me
-
     res = @client.delete('/words.json')
 
     assert_equal('204', res.code, "Unexpected response code")
@@ -84,8 +86,6 @@ class TestCases < Test::Unit::TestCase
   end
 
   def test_deleting_all_words_multiple_times
-    pend # delete me
-
     3.times do
       res = @client.delete('/words.json')
 
@@ -103,8 +103,6 @@ class TestCases < Test::Unit::TestCase
   end
 
   def test_deleting_single_word
-    pend # delete me
-
     # delete the word
     res = @client.delete('/words/dear.json')
 
