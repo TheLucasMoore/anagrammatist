@@ -10,6 +10,10 @@ class App < Sinatra::Base
     def find_key(word)
       word.split('').sort.join
     end
+
+    def redis
+      @redis = Redis.new
+    end
   end
 
   # just mocked up here for now.
@@ -53,6 +57,9 @@ class App < Sinatra::Base
       anagram = Anagram.find_or_create_by(key: key)
       if anagram.words.exclude?(word)
         anagram.words.push(word)
+        # I want to also push the word to Redis so deletion will only clear Redis Cache
+        redis.sadd(key, word)
+        # http://redis.io/commands/sadd
       end
       anagram.save
     end
