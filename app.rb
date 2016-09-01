@@ -46,7 +46,7 @@ class App < Sinatra::Base
 
     if data['words'].empty?
       status 418
-      # a little joke here.
+      # a little joke here, albeit short and stout.
     end
     data['words'].each do |word|
       key = find_key(word)
@@ -77,7 +77,7 @@ class App < Sinatra::Base
     {anagrams: anagram.words}.to_json
   end
 
-  # Optional Stuff
+  ### Optional Features ###
 
   delete '/anagrams/:word.:format?' do
     # deletes a word and all of it's anagrams
@@ -94,7 +94,7 @@ class App < Sinatra::Base
     # returns the word with the most anagrams
   end
 
-  post '/anagrams/test' do
+  post '/anagrams' do
     request.body.rewind
     data = JSON.parse(request.body.read)
     # checks if a set of words are anagrams of each other
