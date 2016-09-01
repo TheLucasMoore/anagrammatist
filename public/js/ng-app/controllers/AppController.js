@@ -1,8 +1,6 @@
-function AppController($scope) {
-  $scope.hello = "hello world"
+function AppController($scope, ApiService) {
   $scope.search = function() {
-    console.log("hey!")
-    // ApiService.getAnagrams($scope.anagramSearch)
+    ApiService.getAnagrams($scope.anagramSearch)
   }
 }
 

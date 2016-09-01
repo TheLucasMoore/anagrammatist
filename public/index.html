@@ -4,15 +4,20 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
-    <title>Anagrammatist</title>
-
+    <link rel="stylesheet" type="text/css" href="style.css">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.2/css/bootstrap.min.css" integrity="sha384-y3tfxAZXuh4HwSYylfB+J125MxIs6mR5FOHamPBG064zB+AFeWH94NdvaCBm8qnd" crossorigin="anonymous">
+    <title>Anagrammatist</title>
   </head>
   <body ng-controller="AppController">
-
+  <div class="col-xs-12 col-md-9 col-md-offset-3">
         <div class="container">
-          <div class="row">
-            <h1>{{ hello }}</h1>
+          <div class="row" id="header">
+              <h1>Anagrammatist</h1>
+              <h2><i>an·a·gram·ma·tist</i></h2>
+              <h3>(noun) a maker of anagrams</h3>
+          </div>
+
+          <div class="row" id="forms">
             <form class="form-inline">
               <div class="form-group">
                 <input type="text" class="form-control" id="anagram" placeholder="read" ng-model="anagramSearch">
@@ -21,11 +26,12 @@
             </form>
           </div>
       </div>
-
+  </div>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.2/js/bootstrap.min.js" integrity="sha384-vZ2WRJMwsjRMW/8U7i6PWi6AlO1L79snBrmgiDpgIWJ82z8eA5lenwvxbMV1PAh7" crossorigin="anonymous"></script>
     <script src="js/angular.js"></script>
     <script src="js/ng-app/app.js"></script>
     <script src="js/ng-app/controllers/AppController.js"></script>
+    <script src="js/ng-app/services/ApiService.js"></script>
   </body>
 </html>
