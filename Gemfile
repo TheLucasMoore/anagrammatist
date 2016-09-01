@@ -14,15 +14,15 @@ gem 'activerecord', :require => 'active_record'
 gem 'sinatra-activerecord', :require => 'sinatra/activerecord'
 gem 'rake'
 
-group :test do
+group :test, :development do
   #sqlite makes local development more simple
   gem 'sqlite3'
-end
-
-group :development, :production do
   gem 'tux'
   gem 'test-unit'
   gem 'pry'
+end
+
+group :production do
   #postgres for Heroku deployment
   gem 'pg'
 end

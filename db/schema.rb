@@ -12,9 +12,6 @@
 
 ActiveRecord::Schema.define(version: 20160830024307) do
 
-  # These are extensions that must be enabled in order to support this database
-  enable_extension "plpgsql"
-
   create_table "anagrams", force: :cascade do |t|
     t.string "key"
     t.text   "words"
