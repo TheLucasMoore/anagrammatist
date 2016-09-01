@@ -5,8 +5,6 @@ gem "sinatra"
 gem "redis"
 gem 'json'
 gem 'require_all'
-#postgres for Heroku deployment
-gem 'pg'
 
 # shotgun server
 gem 'shotgun'
@@ -25,4 +23,6 @@ group :development, :production do
   gem 'tux'
   gem 'test-unit'
   gem 'pry'
+  #postgres for Heroku deployment
+  gem 'pg'
 end
