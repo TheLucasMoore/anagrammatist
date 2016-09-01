@@ -103,7 +103,23 @@ class App < Sinatra::Base
   #   #   2. Min/Max/Median/Average word length
   # end
 
+<<<<<<< HEAD
   post '/anagrams.:format?' do
+=======
+  get '/words/data.:format?' do
+    # returns JSON of the following:
+    #   1. Number of words in DB
+    #   2. Min/Max/Median/Average word length
+  end
+
+  get '/anagrams/max.:format?' do
+    # returns the word with the most anagrams
+  end
+
+  post '/anagrams' do
+    request.body.rewind
+    data = JSON.parse(request.body.read)
+>>>>>>> 04890ad... added tests for the rest of the  API endpoints
     # checks if a set of words are anagrams of each other
     request.body.rewind
     data = JSON.parse request.body.read
