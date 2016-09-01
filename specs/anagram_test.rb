@@ -135,7 +135,7 @@ class TestCases < Test::Unit::TestCase
     @client.post('/words.json', nil, {"words" => ["alerted", "altered", "related", "treadle"] })
     @client.post('/words.json', nil, {"words" => ["carets", "caters", "caster", "crates", "reacts", "recast", "traces"] })
 
-    res = @client.get('/anagrams/max.json')
+    res = @client.get('/anagrams/data/max.json')
     assert_equal('200', res.code, "Unexpected response code")
     body = JSON.parse(res.body)
     assert_equal(6, body['anagrams'].size)

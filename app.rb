@@ -14,7 +14,7 @@ class App < Sinatra::Base
 
   # just mocked up here for now.
   get '/' do
-    erb :index
+    File.read(File.join('public/', 'index.html'))
   end
 
   # return anagrams for any word
@@ -60,6 +60,7 @@ class App < Sinatra::Base
   end
 
   delete '/words.:format?' do
+    # destroys all words. Will move this to Redis clearing
     anagrams = Anagram.all
     anagrams.destroy_all
     status 204
@@ -81,27 +82,49 @@ class App < Sinatra::Base
 
   delete '/anagrams/:word.:format?' do
     # deletes a word and all of it's anagrams
+    word = params[:word]
+    key = find_key(word)
+    anagram = Anagram.find_by(key: key)
+    if anagram.destroy
+      {anagrams: []}.to_json
+    end
   end
 
+  # get '/words/data.:format?' do
+  #   # returns JSON of the following:
+  #   #   1. Number of words in DB
+  #   #   2. Min/Max/Median/Average word length
+  # end
 
-  get '/words/data.:format?' do
-    # returns JSON of the following:
-    #   1. Number of words in DB
-    #   2. Min/Max/Median/Average word length
-  end
-
-  get '/anagrams/max.:format?' do
-    # returns the word with the most anagrams
-  end
-
-  post '/anagrams' do
-    request.body.rewind
-    data = JSON.parse(request.body.read)
+  post '/anagrams.:format?' do
     # checks if a set of words are anagrams of each other
+    request.body.rewind
+    data = JSON.parse request.body.read
+
+    # find key of first word. All words must have same key to be anagrams
+    key = find_key(data['words'][0])
+    counter = 0 # we'll increment a counter for keys that DO NOT match
+    data['words'].each do |word|
+      unless find_key(word) == key
+        # if it matches, sweet. If not, add one to the counter
+        counter += 1
+      end
+    end
+    # if the counter is below one, it means our keys must all match
+    answer = counter < 1 ? true : false
+    {anagrams?: answer}.to_json
   end
 
-  get '/anagrams/size/:number' do
-    # returns all anagrams of size >= X
-  end
+  # get '/anagrams/data/max.:format?' do
+  #   # returns the word with the most anagrams
+  #   biggest_anagram = Anagram.maximum("words")
+  #   raise biggest_anagram.inspect
+  #   words = Anagram.find_by(key: biggest_anagram)
+  #   {anagrams: biggest_anagram}.to_json
+  # end
+  #
+  # get '/anagrams/size/:number' do
+  #   # returns all anagrams of size >= X
+  # end
 
 end
