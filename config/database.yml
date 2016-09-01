@@ -4,6 +4,8 @@ development:
   database: anagrammatist_development
   host: localhost
   pool: 50
+  username: user
+  database: app-dev
 
 test:
   adapter: postgresql

@@ -14,7 +14,7 @@ require_all 'models'
 # end
 
 configure :production, :development, :test do
- db = URI.parse(ENV['DATABASE_URL'] || 'postgres:///anagrammatist_development')
+ db = URI.parse(ENV['DATABASE_URL'] || 'postgres:///database')
 
  ActiveRecord::Base.establish_connection(
    :adapter  => db.scheme == 'postgres' ? 'postgresql' : db.scheme,
