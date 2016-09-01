@@ -66,13 +66,6 @@ class App < Sinatra::Base
     status 201
   end
 
-  delete '/words.:format?' do
-    # destroys all words. Will move this to Redis clearing
-    anagrams = Anagram.all
-    anagrams.destroy_all
-    status 204
-  end
-
   delete '/words/:word.:format?' do
     # delete a single word from data store
     word = params[:word]
