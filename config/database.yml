@@ -11,12 +11,3 @@ test:
   database: anagrammatist_test
   host: localhost
   pool: 5
-
-production:
-  adapter: postgresql
-  encoding: unicode
-  pool: 5
-  host: <%= ENV['DATABASE_HOST'] || 'db' %>
-  database: <%= ENV['DATABASE_NAME'] || 'sinatra' %>
-  username: <%= ENV['DATABASE_USER'] || 'sinatra' %>
-  password: <%= ENV['DATABASE_PASSWORD'] || 'sinatra' %>
