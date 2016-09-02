@@ -6,8 +6,7 @@ gem "redis"
 gem 'json'
 gem 'require_all'
 
-# shotgun server
-gem 'shotgun'
+gem 'thin'
 
 # databse gems
 gem 'activerecord', :require => 'active_record'
