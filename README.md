@@ -1,36 +1,86 @@
-# The Project
+# Anagrammatist
 
----
+An anagrammatist is someone who create anagrams. This is the API for aspiring annagrammatists.
 
-The project is to build an API that allows fast searches for [anagrams](https://en.wikipedia.org/wiki/Anagram). `dictionary.txt` is a text file containing every word in the English dictionary. Ingesting the file doesn’t need to be fast, and you can store as much data in memory as you like.
+# Implementation details
 
-The API you design should respond on the following endpoints as specified.
+The goal for this API is to return anagrams for any word as quickly as possible.
+The data store of this API digests a text file of every word in the English language (or at least the 235,886 most frequently used words).
+Then the results of anagrams for any word are instantly available.
 
-- `POST /words.json`: Takes a JSON array of English-language words and adds them to the corpus (data store).
-- `GET /anagrams/:word.json`:
-  - Returns a JSON array of English-language words that are anagrams of the word passed in the URL.
-  - This endpoint should support an optional query param that indicates the maximum number of results to return.
-- `DELETE /words/:word.json`: Deletes a single word from the data store.
-- `DELETE /words.json`: Deletes all contents of the data store.
+This API is built in Ruby, utilizing Sinatra to render JSON data at each end point. [The deployed app](https://anagrammatist.herokuapp.com/) has a front end built with Angular, for instant search of the whole database.
 
+# Design overview and trade-offs considered
 
-**Optional**
-- Endpoint that returns a count of words in the corpus and min/max/median/average word length
-- Respect a query param for whether or not to include proper nouns in the list of anagrams
-- Endpoint that identifies words with the most anagrams
-- Endpoint that takes a set of words and returns whether or not they are all anagrams of each other
-- Endpoint to return all anagram groups of size >= *x*
-- Endpoint to delete a word *and all of its anagrams*
+I am always intentional with the things I design, sketching out the overarching structure on paper before digging into the build. Here's a few things I considered and the final decisions I made.
 
-Clients will interact with the API over HTTP, and all data sent and received is expected to be in JSON format
+## Sinatra vs. Rails
 
-Example (assuming the API is being served on localhost port 3000):
+The decision to use Sinatra instead of Rails here was purposeful. Rails is a fully featured MVC framework. I do love to build things with Rails, but it seemed like overkill to simply run one model, one controller and one view. Additionally, while some of the magic of Rails can be nice, I wanted to build the environment, tests and database configuration entirely on my own. I'm hungry to learn and I seek out challenges.
+
+One example of such a challenge came with an app crash at deployment. I learned that I needed to manually export the $RACK_ENV variable to Heroku in my Procfile for this web application to function. The Rails apps I've deployed in the past seemed to handle this easily, but I enjoy developing as deeply as possible. In this case, I got to build out the Rack Middleware environments for testing, development and deployment entirely by myself. (along with Stackoverflow, of course)
+
+## ActiveRecord vs. Redis
+
+My first instinct with the need for a fast API was to create a datastore in Redis. While this would be fast, having 200,000+ words loaded into memory had a bit of a funky code smell to it. I tried it and did not like it.
+
+The one advantage of this decision remained however. The delete end point would simply be clearing the cache from memory (`redis.flushall`) instead of destroying the contents of the database. In production, with so many words in the database, re-seeding it will take quite a while.
+
+When considering the end user's story for interacting with this API, they simply want instant results. Using ActiveRecord to store the Anagram model, as well as the ability to seed the database with the contents of the entire dictionary, has meant that the queries to the API are essentially instant. [You can see that here.](https://anagrammatist.herokuapp.com/)
+
+## Data Structure
+
+Each anagram is found by it's key, which is the word split into letters, sorted and joined back together. Words with the same key are stored in an array called 'words' in the Anagram class. This process of finding the key for a word is done in the controller with a helper:
+
+``` ruby
+def find_key(word)
+  word.split('').sort.join
+end
+
+find_key("read")
+#=> "ader"
+
+anagram = Anagram.find_by(key: "ader")
+anagram.key = "ader"
+anagram.words = ["ared","read","dare","dear"]
+```
+
+# Creating this in your local environment
+
+To begin to develop with this API in your local environment, first, email me so I can add you to the private github repo. Then fork/clone this repo. If you're working out the zip file, well, perfect. We're ready to get started.
+
+## Set Up, Testing
+
+1. Run `bundle` to install the dependencies
+2. `rake db:create`, `rake db:migrate` and (optionally) `rake db:seed`. Note that seeding 200,000+ words take a very long time. It's intentionally designed to run in production, which took place in the background. The tests of the API functionality will work with or without the seeding.
+3. `thin start` will serve up the API and front end at `localhost:3000`. The server must be running for the tests to pass.
+4. `ruby run_tests.rb` during development to ensure you haven't broken the core functionality or model validations.
+
+# Interacting with the Local API
+
+These commands will show you how the API works locally.
 
 ```{bash}
 # Adding words to the corpus
 $ curl -i -X POST -d '{ "words": ["read", "dear", "dare"] }' http://localhost:3000/words.json
 HTTP/1.1 201 Created
 ...
+
+# Checking if a set of words are anagrams
+$ curl -i -X POST -d '{ "words": ["read", "dear", "dare"] }' http://localhost:3000/anagrams.json
+HTTP/1.1 201 Created
+...
+{
+  anagrams?: true
+}
+
+# ... or if a set of words are NOT anagrams at the same end point
+$ curl -i -X POST -d '{ "words": ["cool", "stuff", "huh?"] }' http://localhost:3000/anagrams.json
+HTTP/1.1 201 Created
+...
+{
+  anagrams?: false
+}
 
 # Fetching anagrams
 $ curl -i http://localhost:3000/anagrams/read.json
@@ -62,57 +112,42 @@ HTTP/1.1 200 OK
 $ curl -i -X DELETE http://localhost:3000/words.json
 HTTP/1.1 204 No Content
 ...
+
+# Delete a word and all it's anagrams
+$ curl -i -X DELETE http://localhost:3000/anagrams/read.json
+HTTP/1.1 200 OK
+...
 ```
 
-Note that a word is not considered to be its own anagram.
+# Interacting with the Live API
 
+While the live API page currently has the anagram search function enabled, the entire API is actually live and working.
 
-## Tests
+To see this API running, simply change `http://localhost:3000` to `https://anagrammatist.herokuapp.com`. Note that it's running on hobby-dev Heroku, so there's going to be room for improvement in performance. Those dynamos get sleepy after a while.
 
-We have provided a suite of tests to help as you develop the API. To run the tests you must have Ruby installed ([docs](https://www.ruby-lang.org/en/documentation/installation/)):
+For one example, to grab the anagrams for any word:
 
-```{bash}
-ruby anagram_test.rb
+```bash
+curl -i https://anagrammatist.herokuapp.com//anagrams/read.json
 ```
 
-Only the first test will be executed, all the others have been made pending using the `pend` method. Delete or comment out the next `pend` as you get each test passing.
+Note, the DELETE ALL end point has been disabled in production. Sure, we could build out an authorization scheme with JWTs to ensure only admins can use it, or utilize the famously heavy Devise gem. Or perhaps CanCanCan for permissions. But let's keep it simple, alright? Nobody can delete the data store if the end point is gone.
 
-If you are running your server somewhere other than localhost port 3000, you can configure the test runner with configuration options described by
+# Features to add to the API
 
-```{bash}
-ruby anagram_test.rb -h
-```
+One bonus feature I did add was an anagram checker. Any set of words posted will return `true` or `false`, depending on whether the words are anagrams of each other.
 
-You are welcome to add additional test cases if that helps with your development process. The [benchmark-bigo](https://github.com/davy/benchmark-bigo) gem is helpful if you wish to do performance testing on your implementation.
+The other feature I added is to delete a word AND all of it's anagrams.
 
-## API Client
+Additional features that would be interesting to add are end points to return data, like maximum/minimum/average number of anagrams in the database. This can be done with custom Postgres queries or using ActiveRecord's `Anagram.find_by_sql("SELECT ... yadayadayada")` ability.
 
-We have provided an API client in `anagram_client.rb`. This is used in the test suite, and can also be used in development.
+I'd love to implement anagrams with multiple words or entire sentences.
+Things like `no more stars` and `astronomers`, `a perfectionist` and `I often practice` or, my favorite, `Election results` and	`Lies – let's recount`. That's getting into AI territory I think though.
 
-To run the client in the Ruby console, use `irb`:
+## Uses? Scrabble!
 
-```{ruby}
-$ irb
-> require_relative 'anagram_client'
-> client = AnagramClient.new
-> client.post('/words.json', nil, { 'words' => ['read', 'dear', 'dare']})
-> client.get('/anagrams/read.json')
-```
+The live search functionality here does not discriminate on whether the text entered is a word or not. It searches by the key, so this app is a perfectly useful scrabble word solver. Enter some (or all) of the letters on your board and you're <s>cheating</s> winning in no time!
 
-## Documentation
+![anagrams and scrabble](http://pad1.whstatic.com/images/thumb/e/e1/Manage-a-Rack-in-Scrabble-Step-3-Version-2.jpg/aid1916432-728px-Manage-a-Rack-in-Scrabble-Step-3-Version-2.jpg)
 
-Optionally, you can provide documentation that is useful to consumers and/or maintainers of the API.
-
-Suggestions for documentation topics include:
-
-- Features you think would be useful to add to the API
-- Implementation details (which data store you used, etc.)
-- Limits on the length of words that can be stored or limits on the number of results that will be returned
-- Any edge cases you find while working on the project
-- Design overview and trade-offs you considered
-
-
-# Deliverable
----
-
-Please provide the code for the assignment either in a private repository (GitHub or Bitbucket) or as a zip file. If you have a deliverable that is deployed on the web please provide a link, otherwise give us instructions for running it locally.
+"What? Oh no, I'm just texting someone. I'm not cheating at family scrabble on my phone with a web application I built." -me, probably soon.
