@@ -1,9 +1,9 @@
 function ApiService($http) {
   return {
     getAnagrams: function(query) {
-      $http.get('/anagrams/' + query + '.json').then(res => {
-        console.log(res.data.anagrams);
-      })
+      return $http.get('/anagrams/' + query + '.json').then(res => {
+        return res.data.anagrams;
+      });
     }
   }
 }

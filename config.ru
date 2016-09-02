@@ -1,3 +1,3 @@
 require './config/environment'
 run App
-# this runs the app at localhost:9393 with shotgun
+# this runs the app at localhost:3000 with Thin

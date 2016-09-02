@@ -1,3 +1,8 @@
+body {
+  background-color: #dbdbdb;
+  background-image: url("https://www.transparenttextures.com/patterns/batthern.png");
+}
+
 #header {
   padding: 3em;
 }
@@ -12,4 +17,8 @@
 
 #form button {
   margin: auto;
+}
+
+#results {
+  padding: 30px;
 }

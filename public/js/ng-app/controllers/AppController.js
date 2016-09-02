@@ -1,6 +1,11 @@
 function AppController($scope, ApiService) {
+  $scope.title = "Anagrammatist"
   $scope.search = function() {
     ApiService.getAnagrams($scope.anagramSearch)
+      .then(res => {
+      console.log(res)
+      return $scope.results = res;
+    })
   }
 }
 

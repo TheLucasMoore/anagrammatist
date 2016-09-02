@@ -8,7 +8,7 @@ class AnagramClient
 
     @dictionary = options[:dictionary] || 'dictionary.txt'
     @host = options[:host] || 'localhost'
-    @port = options[:port] || '9393'
+    @port = options[:port] || '3000'
   end
 
   def build_uri(path, query=nil)
@@ -46,7 +46,7 @@ class AnagramClient
         options[:host] = h
       end
 
-      opts.on("-p", "--port PORT_NUMBER", "defaults to 9393") do |p|
+      opts.on("-p", "--port PORT_NUMBER", "defaults to 3000") do |p|
         options[:port] = p
       end
 
