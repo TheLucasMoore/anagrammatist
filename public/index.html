@@ -20,7 +20,7 @@
           <div class="row" id="forms">
             <form class="form-inline">
               <div class="form-group">
-                <input type="text" class="form-control" id="anagram" placeholder="read" ng-model="anagramSearch">
+                <input type="text" class="form-control" id="anagram" placeholder="read" ng-model="anagramSearch" ng-change="search()">
               </div>
               <button type="submit" class="btn btn-primary" ng-click="search()">Search for Anagrams</button>
             </form>
