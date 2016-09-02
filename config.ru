@@ -1,3 +1,3 @@
 require './config/environment'
-run App.new
+run Sinatra::Application
 # this runs the app at localhost:3000 with Thin
